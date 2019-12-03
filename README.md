@@ -35,11 +35,12 @@ Follow installation information [here](https://clang.llvm.org/get_started.html)
 ### Build / Install
 
 ```sh
+$ git clone https://github.com/tpops/sparse_c_frontend.git/
 $ mkdir build
 $ cd build
 ```
 
-You can specify documentation option with the -DBUILD_DOC=ON and the llvm/clang route -DLLVM_ROOT=
+You can specify documentation option with the -DBUILD_DOC=ON and the llvm/clang route -DLLVM_ROOT=/clang-llvm-installation-folder
 
 ```sh
 $ cmake -DLLVM_ROOT=~/ -DBUILD_DOC=ON ../path-to-source/
