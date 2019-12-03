@@ -1,0 +1,8 @@
+# CSR->BSR Example
+symbolic N,rp(1),rp1(1),col(2);
+Icsr := {[i,n,j]: 0 <= i && i < N && 0 < N && rp(i) <= n && n < rp1(i) && rp(i) < rp1(i) && j=col(i,n) };
+#Ttile := {[i,n,j] -> [ii,i,n,jj,j]: exists(ri,cj: 0 <= ri < 8 && i = ii*8+ri && 0 <= cj < 8 && j = jj*8+cj)};
+Ttile := {[i,n,j] -> [ii,i,n,jj,j]: exists(r0,r1: 0 <= r0 && r0 < 8 && 0 < 8 && i = ii*8+r0 && 0 <= r1 && r1 < 8 && 0 < 8 && j = jj*8+r1)};
+Itile := Ttile(Icsr);
+r0 := {[ii,i,n,jj,j] -> [ii,i,n,jj,j,0]};
+codegen r0:Itile given {[n,i]: N-1>=0};

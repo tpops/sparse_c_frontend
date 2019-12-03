@@ -1,0 +1,20 @@
+{ "name": "sgemm", "nodes": [
+{ "label": "N", "space": "N" },
+{ "label": "M", "space": "M" },
+{ "label": "b", "space": "b" },
+{ "label": "init*gemm", "space": "init(i,j) = { 0 <= i ^ i < N ^ 0 < N ^ 0 <= j ^ j < M ^ 0 < M } : { C(i,j)*=b }" },
+{ "label": "C", "space": "C(i,j)" },
+{ "label": "P", "space": "P" },
+{ "label": "A", "space": "A" },
+{ "label": "B", "space": "B" },
+{ "label": "a", "space": "a" }
+], "edges": [
+{ "src": "N", "dest": "init*gemm" },
+{ "src": "M", "dest": "init*gemm" },
+{ "src": "b", "dest": "init*gemm" },
+{ "src": "init*gemm", "dest": "C" },
+{ "src": "P", "dest": "init*gemm" },
+{ "src": "A", "dest": "init*gemm" },
+{ "src": "B", "dest": "init*gemm" },
+{ "src": "a", "dest": "init*gemm" }
+] }

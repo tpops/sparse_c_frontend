@@ -1,0 +1,18 @@
+{ "name": "sddm", "nodes": [
+{ "label": "I", "space": "I" },
+{ "label": "J", "space": "J" },
+{ "label": "K", "space": "K" },
+{ "label": "B", "space": "B" },
+{ "label": "C", "space": "C" },
+{ "label": "D", "space": "D" },
+{ "label": "sddm", "space": "sddm(i,j,k) = { 0 <= i ^ i < I ^ 0 < I ^ 0 <= j ^ j < J ^ 0 < J ^ 0 <= k ^ k < K ^ 0 < K } : { A(i,j)+=B(i,j)*C(i,k)*D(k,j) }" },
+{ "label": "A", "space": "A(i,j)" }
+], "edges": [
+{ "src": "I", "dest": "sddm" },
+{ "src": "J", "dest": "sddm" },
+{ "src": "K", "dest": "sddm" },
+{ "src": "B", "dest": "sddm" },
+{ "src": "C", "dest": "sddm" },
+{ "src": "D", "dest": "sddm" },
+{ "src": "sddm", "dest": "A" }
+] }

@@ -1,0 +1,30 @@
+# MFD-3D Graph Spec
+name("mfd_3d");
+
+# X-Direction
+fx1 := {[c,z,y,x]: 0 <= c < 5 && 0 <= z < N && 0 <= y < N && 0 <= x <= N};
+fx2 := {[c,z,y,x]};
+dx := {[c,z,y,x]: 0 <= x < N};
+
+# Y-Direction
+fy1 := {[c,z,y,x]: 0 <= c < 5 && 0 <= z < N && 0 <= y <= N && 0 <= x < N};
+fy2 := {[c,z,y,x]};
+dy := {[c,z,y,x]: 0 <= y < N};
+
+# Z-Direction
+fz1 := {[c,z,y,x]: 0 <= c < 5 && 0 <= z <= N && 0 <= y < N && 0 <= x < N};
+fz2 := {[c,z,y,x]};
+dz := {[c,z,y,x]: 0 <= z < N};
+
+# Statements
+statement(fx1) := "Cx1[c,z,y,x] = (1./12.)*(Bin[c,z,y,x-2] + 7.0 * Bin[c,z,y,x-1] + Bin[c,z,y,x] + Bin[c,z,y,x+1])";
+statement(fx2) := "Cx2[c,z,y,x] = Cx1[c,z,y,x] * 2.0 * Cx1[2,z,y,x]";
+statement(dx) := "Bout[c,z,y,x] += Cx2[c,z,y,x+1] - Cx2[c,z,y,x]";
+
+statement(fy1) := "Cy1[c,z,y,x] = (1./12.)*(Bin[c,z,y-2,x] + 7.0 * Bin[c,z,y-1,x] + Bin[c,z,y,x] + Bin[c,z,y+1,x])";
+statement(fy2) := "Cy2[c,z,y,x] = Cy1[c,z,y,x] * 2.0 * Cy1[3,z,y,x]";
+statement(dy) := "Bout[c,z,y,x] += Cy2[c,z,y+1,x] - Cy2[c,z,y,x]";
+
+statement(fz1) := "Cz1[c,z,y,x] = (1./12.)*(Bin[c,z-2,y,x] + 7.0 * Bin[c,z-1,y,x] + Bin[c,z,y,x] + Bin[c,z+1,y,x])";
+statement(fz2) := "Cz2[c,z,y,x] = Cz1[c,z,y,x] * 2.0 * Cz1[4,z,y,x]";
+statement(dz) := "Bout[c,z,y,x] += Cz2[c,z+1,y,x] - Cz2[c,z,y,x]";

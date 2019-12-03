@@ -1,0 +1,15 @@
+# And now for my example:
+#symbolic NNZ,row(1),rp(2),rp1(2);
+#Irp1 := {[n,i,m]:i-row(n)=0&&m-rp(n,i)=0&&n>=0&&n-m>=0&&NNZ-1>=0&&-n+NNZ-1>=0};
+#Irp2 := {[n,i,m]:i-row(n)=0&&m-rp(n,i)=0&&n>=0&&m-rp1(n,i)>=0&&NNZ-1>=0&&-n+NNZ-1>=0};
+#Srp1 := {[n,i,m] -> [n,1,i,m]};
+#Srp2 := {[n,i,m] -> [n,2,i,m]};
+#codegen Srp1:Irp1,Srp2:Irp2 given {[n,i,m]: NNZ-1>=0};
+#
+symbolic NNZ,row(1);
+I_N := {[]};
+Iin := {[n,i]:i-row(n)=0&&n>=0&&NNZ-1>=0&&-n+NNZ-1>=0};
+r0 := {[] -> [0,0,0,0]};
+r1 := {[n,i] -> [1,n,i,1]};
+r2 := {[n,i] -> [1,n,i,2]};
+codegen r0:I_N,r1:Iin,r2:Iin given {[n,i]: NNZ-1>=0};

@@ -1,0 +1,7 @@
+# Jacobi1D Graph Spec
+data:={[t,i]:0 <= t <= T && 0 <= i <= N+1};
+jacobi:={[t,i]:1 <= t <= T && 1 <= i <= N};
+statement(jacobi):=data[t,i]=data[t-1,i-1]+data[t-1,i]+data[t-1,i+1]/3.0;
+shift:={[t,i]->[t,i+t]};
+jshift:=shift(jacobi);
+split(jacobi,i,3);

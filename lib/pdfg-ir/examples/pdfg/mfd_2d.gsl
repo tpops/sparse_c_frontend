@@ -1,0 +1,20 @@
+# MFD-2D Graph Spec
+name("mfd_2d");
+
+# X-Direction
+fx1 := {[c,y,x]: 0 <= c < 4 && 0 <= x <= N && 0 <= y < N};
+fx2 := {[c,y,x]};
+dx := {[c,y,x]: 0 <= x < N};
+
+# Y-Direction
+fy1 := {[c,y,x]: 0 <= c < 4 && 0 <= x < N && 0 <= y <= N};
+fy2 := {[c,y,x]};
+dy := {[c,y,x]: 0 <= y < N};
+
+# Statements
+statement(fx1) := "Cx1[c,y,x] = (1./12.)*(Bin[c,y,x-2] + 7.0 * Bin[c,y,x-1] + Bin[c,y,x] + Bin[c,y,x+1])";
+statement(fx2) := "Cx2[c,y,x] = Cx1[c,y,x] * 2.0 * Cx1[2,y,x]";
+statement(dx) := "Bout[c,y,x] += Cx2[c,y,x+1] - Cx2[c,y,x]";
+statement(fy1) := "Cy1[c,y,x] = (1./12.)*(Bin[c,y-2,x] + 7.0 * Bin[c,y-1,x] + Bin[c,y,x] + Bin[c,y+1,x])";
+statement(fy2) := "Cy2[c,y,x] = Cy1[c,y,x] * 2.0 * Cy1[3,y,x]";
+statement(dy) := "Bout[c,y,x] += Cy2[c,y+1,x] - Cy2[c,y,x]";

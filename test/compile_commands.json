@@ -1,0 +1,16 @@
+[{
+  "directory" :
+      "/home/tpopoola/research/Olschan_Masters_Tobi/pdfg-compiler/PDFG-C/test/"
+      "command" : "/home/tpopoola/llvm/llvm_build/bin/clang sample.c"
+                  "file" : "/home/tpopoola/research/Olschan_Masters_Tobi/"
+                           "pdfg-compiler/PDFG-C/test/sample.c"
+},
+ {
+   "directory" :
+       "/home/tpopoola/research/Olschan_Masters_Tobi/pdfg-compiler/PDFG-C/test/"
+       "command" : "/home/tpopoola/llvm/llvm_build/bin/clang sample2.c"
+                   "file" : "/home/tpopoola/research/Olschan_Masters_Tobi/"
+                            "pdfg-compiler/PDFG-C/test/sample2.c"
+ }
+
+]

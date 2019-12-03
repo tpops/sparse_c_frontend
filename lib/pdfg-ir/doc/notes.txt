@@ -1,0 +1,31 @@
+I_N() = { [0] } : { N=row(NNZ-1) }
+s0();
+
+symbolic NNZ,row(1),rp(2);
+I_rp := {[n,i]:i-row(n)=0&&n>=0&&n-rp(n,i)>=0&&NNZ-1>=0&&-n+NNZ-1>=0};
+codegen(I_rp) given {[n,i]: NNZ-1>=0};
+I_rp(n,i) = { 0 <= n ^ n < NNZ ^ 0 < NNZ ^ i = row(n) ^ n >= rp(i+1) } : { rp(i+1)=n+1 }
+
+symbolic NNZ,row(1),rp(2),rp1(2);
+I_rp2 := {[n,i,m]:i-row(n)=0&&m-rp(n,i)=0&&n>=0&&m-rp1(n,i)>=0&&NNZ-1>=0&&-n+NNZ-1>=0};
+codegen(I_rp2) given {[n,i,m]: NNZ-1>=0};
+
+# Omega Calculator [v1.1.0, Nov 96]:
+# Example of code generation from Omega Calculator documentation
+symbolic n;
+i10 := {[i]: 2 <= i <= n};
+i20 := {[i,j]: 2 <= i <= n && 1 <= j <= i-1};
+i30 := i10;
+s10 := {[i] -> [0,i,0,0]};
+s20 := {[i,j] -> [1,j,0,i]};
+s30 := {[i] -> [1,i-1,1,0]};
+codegen s10:i10,s20:i20,s30:i30;
+
+# And now for my example:
+symbolic NNZ,row(1),rp(2),rp1(2);
+Irp := {[n,i]:i-row(n)=0&&n>=0&&n-rp(n,i)>=0&&NNZ-1>=0&&-n+NNZ-1>=0};
+Irp2 := {[n,i,m]:i-row(n)=0&&m-rp(n,i)=0&&n>=0&&m-rp1(n,i)>=0&&NNZ-1>=0&&-n+NNZ-1>=0};
+Srp := {[n,i] -> [0,n,i,0]};
+Srp2 := {[n,i,m] -> [1,n,i,m]};
+codegen Srp:Irp,Srp2:Irp2 given {[n,i,m]: NNZ-1>=0};
+

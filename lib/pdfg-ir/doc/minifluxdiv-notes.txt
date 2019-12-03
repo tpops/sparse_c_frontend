@@ -1,0 +1,355 @@
+ 1) Original Shifts:
+
+#pragma omplc loopchain schedule(fuse((0,0,0), (0,0,0), (0,0,1), (0,0,0), (0,0,0), (0,1,1), (0,0,0), (0,0,0), (1,1,1)))
+                    f1x(z,y,x),f2x(z,y,x),df(z,y,x+1),f1y(z,y,x),f2y(z,y,x),df(z,y+1,x+1),f1z(0,0,0),f2z(0,0,0),df(z+1,y+1,x+1)
+(0,0,0)
+(0,0,0)
+(0,0,1)
+(0,0,0)
+(0,0,0)
+(0,1,1)
+(0,0,0)
+(0,0,0)
+(1,1,1)
+
+2) Expected Shifts:
+
+#pragma omplc loopchain schedule(fuse((0,0,0), (0,0,0), (0,0,1), (0,0,0), (0,0,0), (0,1,0), (0,0,0), (0,0,0), (1,0,0)))
+                    f1x(z,y,x),f2x(z,y,x),df(z,y,x+1),f1y(z,y,x),f2y(z,y,x),df(z,y+1,x),f1z(0,0,0),f2z(0,0,0),df(z+1,y,x)
+
+(0,0,0)
+(0,0,0)
+(0,0,1)
+(0,0,0)
+(0,0,0)
+(0,1,0)
+(0,0,0)
+(0,0,0)
+(1,0,0)
+
+3) SC Schedule:
+
+(0,0,-1)
+(0,0,-1)
+(0,0,0)
+(0,-1,0)
+(0,-1,0)
+(0,0,0)
+(-1,0,0)
+(-1,0,0)
+(0,0,0)
+
+
+ 4) Experimental Results
+
+  Switching everything to minifluxdiv, nixing the Jacobi, no other.
+  Chose micro-benchmark (MFD). Describe the process. Demonstrated that our tool is able to perform the transformations, and realize performance
+  improvements in a few cases (mention which ones). Quick overview of what we did, then punchline. Automated shifting tool generated code that
+  closely mathced those that were manually determined. Describe the machine (R2). Did not match previous results (SC14 paper) because data
+  accesses were not optimized.
+
+  Subsection: describe MFD. Refer back to SC14 paper, but without the math (reference that paper).
+
+  Subsection: execution schedules [ #1 and #3 from above ].
+
+  Figure modifications:
+  1) Move legend in.
+  2) Connect points.
+  3) Remove manually generated data.
+
+
+C	B	Total
+128	  28	58720256
+64	 224	58720256
+32	1792	58720256
+16	14336	58720256
+
+ New shift code from Ian, we need to evaluate it.
+
+ No more manual data...
+ Should we use the fusionTripleCache as our baseline? Then it uses the same data storage...
+ Add description of data (mean of 5 runs).
+ Draw conclusions...
+ Fix citations (in .bib file).
+
+
+  06-02-2017:
+
+ 1) Propagate full_numCell3 bug fix.
+ 2) Regenerate results from paper -- trends better match!
+ 3) Run tiled cases: 4, 8, 16, 32, 64.
+ 4) Redesign MFD interface so we only need one driver.
+ 5) NumCell calcs should be macros in util.
+ 6) Can ISCC put OMP pragmas in for us? If not, generate code to do so automatically.
+     Driver => Schedule (ISCC) => Gen File
+
+  07-07-2017
+
+ 1) Variants needed:
+
+   a. Baseline: CLO and CLI (component loop out and in).
+   b. Parameterized tile sizes:
+   c. Change explainTripleCache to be SSA like FullStore.
+   d. Change 'explain' to 'series'.
+   e. Change 'Cache' to 'temp' (temporary) , i.e,. baseline becomes series-cli-reduce-temp, series-clo-reduce-temp,
+
+ 2) Capitalize 'd' in miniFluxdiv => miniFluxDiv in all variants.
+
+ 3) Regular shift & fuse...
+
+ 4) Try to simplify the ISL code, try to factor redundant code into named maps/sets.
+
+ 5) FLUX1XCACHE,...,DIFFZ => TEMP(0,c,z,y,x): only (NOT DOING THIS YET).
+
+ 6) Only every maintain two scalars, needs to be hidden behind TEMP macro.
+
+What is the diff b/w CLO and CLI?
+
+miniFluxdiv-explain-baseline.cpp:
+In this code we are reusing the g_cache to store 2 values per variable (component).
+Additionally we are accumulating the result into [p,e,u,v,w]_DATA (CLI?).
+
+  07-11-2017
+ 1) Start timers after allocation and stop timers before free.
+ 2) Create copy of data macros used by "_truth" and define them immediately before "truth" to avoid tampering.
+ 3) Move box loop into template.
+ 4) Move macros into template.
+ 5) CLO, baseline and full store: use identity ISL, basically call codegen on schedule, should produce non-transformed code.
+ 6) Meet again tomorrow at 1 pm.
+
+  07-14-2017
+ 1) Create CFG file that only prints, then we can always plug it in for debugging.
+ 2) Try to move GET_VAL_PTR, etc. into MiniFluxBenchmark.h (any non-cache related macros) so that users are not tempted to modify.
+
+Need a log time plot of:
+
+1) threads 1-28, C=128, B=28, Series, Overlap
+
+
+  Theoretical Minimum:
+ 1) Theoretical minimum and fuse (everything is fused and steps through one time).
+ 2) Non-fused only runs FLUX1(X,Y,Z).
+ 3) Run these two to get theoretical minima.
+ 4) Series-CLI: box level parallelism (essentially our baseline).
+ 5) miniFluxDiv-series-cli-pwithin.cfg (parallelism within).
+
+   Results in Paper:
+  1) Theoretical min (2 variants), CLI/CLO, parallelism over boxes and within.
+  2) Baseline (Series): CLI/CLO, parallelism over and parallelism within.
+  3) Series (SSA) CLI/CLO -- to demonstrate SSA needed before schedules can be modified.
+  4) SSA w/ execution schedules (come up w/ list of interesting schedules from Michelle).
+  5) Start reducing data.
+
+  Goals:
+  1) Minimizing # of times you read data.
+  2) Minimize working set size (memory footprint).
+
+
+  New Story (per Michelle): Statement macros...
+Macro: I -> D (I: iteration space, data).
+How to automate w/o using a DSL.
+Automating data access patterns.
+How can we do this? Auto-tuning like OpenTuner?
+Back to the data access specs in the loop chain pragmas...
+Need baseline CLO.
+
+
+ 1) Implement Series-CLI-SSA with ISL.
+ 2) Then need to make Series-CLO-SSA from that.
+ 3) Needs to be pristine!
+ 4) Re-add MiniFluxUtils.h with rendundant code code.
+ 5) Add a comment for value set macros (e.g., VAL_FLUX1X).
+ 6) gx1 => gx2 to ensure SSA.
+ 7) Rework logic from GET_FACE_VAL_PTR into the VAL_* macros to elminate control flow.
+ 8) New set of comments.
+ 9) Every config file should say Reduce or SSA.
+10)
+
+
+  7-20-17:
+  // This is actually CLO so rename it, need to make it SSA, to be legal,
+  // Add transformation to the ISL code to get the order right: 0-8 for the operations.
+  // Then work on CLI version.
+  // Fix bug in islcodegen not inserting ISL code.
+
+ 7-25-17:
+ Needed schedules:
+
+  1) CLO, CLI, SSA of both.
+  2) Graph operations: reschedule (per node), fuse (per row), duplication (of node -- requires new domain).
+  3) We are going to generate ISL code from graphs, duplication means new statement and value macros
+  4) Which schedules should we convert first? She will send in email...
+  5) Row number is the order of execution (1st item in ISL tuple).
+  6) Then coordintes: c,z,y,x, then position from back to front (0 = F1, 1 = F2, 2 = Diff).
+     e.g. [1, c, z, y, x, 0].
+ 7) Fx1 and Fx2 : producer/consumer fusion
+ 8) Fx1 and Fy1 : read fusion -- reading the same data so do at the same time.
+ 9) Prefetcher fusion?
+10) 1st schedule (in email) is called; fuseWithinDirections
+11) Translated instructions -- see my notes.
+
+ 7-26-17:
+ 1) Just need to add shifts for the DIFFs.
+    * DIFFX by x+1, DIFFY by y+1, DIFFZ z => z+1
+
+ 7-28-17:
+ 1) Domains of the data spaces.
+ 2) Using liveness analysis, like register allocation (graph coloring).
+ 3) Algo: list of memory locations, keep track of which are being used.
+    * Array of allocated sizes.
+    * Array of active spaces (boolean).
+    * Array of pointers.
+    * March backward through execution graph.
+    * Come into Dy, what does Dy read (N^2+N space).
+    * Zero is now an active space.
+    * Fy2->size 1.
+    * Allocate pointer to size 1.
+    * Read (arrow incoming).
+    * Write (arrow outgoing).
+    * Everything read becomes live as you exit a node, everything
+      written is killed (no longer live).
+    * Reverse the order, instead of L->R, T->B, we read R->L, B->T.
+    * No coding this time, just the algorithm!
+    * Grey boxes are the VAL_* macros.
+      -- Need to be rewritten to use data->locations[tid][i],
+         where is the index into the allocated sizes, active spaces, pointers.
+    * When data needed, check whether a space of needed size is inactive,
+      and use it if available.
+    * Otherwise, find largest inactive location and resize it...
+    * If no inactive space, allocate a new one.
+    * Note that this is all static analysis!
+    * If two reads coming into same node, accommodate larger
+      read first.
+    * If size < some value (say 5), use scalars (although omit that)
+
+ Posters are boxes:
+
+ 1) Describe MFD: go back to SC paper, and journal paper.
+   * Include data graph addressing problem to fix.
+   * use 2D examples, but 3D results.
+   * Original source code (simplified).
+  2) Box 2: Loop chaining, original source code with pragmas.
+  3) Coarse grained data flow graphs.
+     * Graffle figures corresponding directly to annotated
+       code with loop chain pragmas.
+  4) Explain how graphs are used to explore transformations.
+  5) Show schedules corresponding to graphs.
+  6) Reasoning about graphs (cost-metrics) -- use paper draft.
+  8) Discussion of control flow -- aware it is an issue, but
+    we have not adddressed yet.
+  7) Reducing storage mapping: algorithm we just covered above.
+  8) Performance resultd: box sizes 8, 64, 128, schedules:
+     original, SSA, redux.
+  9) Tiling: Assume overlapped tiling, we will always recompute
+     within tiles to eliminate tile->tile dependences.
+
+  Working thru the algo...
+  1) Reuse distance within fused set of operations.
+  2)
+
+  7-30-17:
+ 1) Graphs (from Dr. O email):
+
+The first will be box sizes of 8 and 128
+The first two lines will be the original schedule
+
+The second two lines will be the best of both sizes.
+You won't be able to generate it until I have tiling.
+
+If I don't get tiling you should just use size 8.
+
+This will go in the miniFluxDiv overview section
+
+---------
+I've been rethinking the results section.
+We don't want to repeat the previous
+Maybe one graph that shows the SSA data and one graph that shows the corresponding redux data.
+
+If I get tiling done we can do 8 and 128, if I don't we can just use 8.
+
+I really want to include the overlap tiling results - I will make them my priority tonight.
+
+
+  8-16-17:
+ Paper rewrite:
+
+ 1) Start with new template.
+ 2) Empty outline.
+ 3) Merge poster overview with what's there.
+ 4) Rename! It's not just about overlapped tiling anymore.
+
+ Section I:  Intro
+ Section II: Background (including Loop Chaining & Dataflow)
+ Combine sections 6 & 7 => Experimental Validation
+ Related work
+ Conclusions
+
+ Intro:
+Flip it, go from 1st paragraph into loop chaining (one paragraph).
+... abstraction that can be applied to common patterns in scientific computing,
+e.g. stencils, series of arrays, fusion, etc. Then go into dataflow graphs.
+Change aggregate to macro. Get rid of #5 in the contributions, it is implicit.
+Tiling is not visually represented in the graph. Tiling should be based on
+output data to avoid race conditions. New variale, Ts < N, user indicates
+tile size and whether overlapped or not. Change tiling to a graph operation,
+yank old intro. Add new paragraph with 'this paper is organized as follows...'
+Put clean copy in PaperOverlapComp repo.
+
+Cathie will work on the code.
+
+Add ideal line to plotly charts, should be linear on log-log plot, color=black.
+
+
+ 8-29-2017
+
+ 1) Add TILE_MASK to python script.
+ 2) Throw error if TILE_SIZE is not a power of 2 (e.g., (n & (n - 1)) == 0).
+
+8-30-2017:
+
+ 1) Race condition fixed!
+   We shifted DIFF ops by (1,1,1) and FLUX1/2 ops by (0,1,1) for z,
+     (1,0,1) for y, and (0,1,1) for x directions respectively.
+ 2) Data reduction also implemented for files.
+ 3) Do something about those mods using bitwise operations! Even if
+    we have to double the tile size to get a power of 2 instead of
+    TILE_SIZE+1.
+ 4) Collect data for TS=8,16,32; TILE_MASK==TILE_SIZE-1 (e.g., 7).
+ 5) Experiment with OMP 'collapse' for per tile parallelism.
+ 6) Experiment with nested parallelism.
+ 7) Increase # of boxes to really stress memory subsystem.
+
+ 9-5-17:
+ 1) Background => Loop Chaining for Memory Avoidance.
+ 2) Modify the overview figure, flesh out the loop chain pragma to
+    graph node generation.
+ 3) Need to remove guard on c1 iterator (quick hack: do it in python).
+ 4) Then collapse(2) and numerous flavors of nested parallelism.
+ 5) Take min of each nested set, show all tile sizes.
+ 6) Only do C=128 for now.
+ 7) Consider collapse as a form of nested parallelism.
+
+  9-11-17:
+  1) Hack code to get collapse(2) working, i.e., remove preconditions.
+  2) Run above on R2.
+  3) Halide version of overlapped tiling is working, code is running faster
+     with vectorization off! 'restrict' keyword?
+  4) Next steps? Data reduction, remove mins on inner loops to allow
+     vectorization.
+
+  9-12-17:
+ 1) Problem with collapse is that the 'int tid = ' code must actually fall one more level down in the loop nest!
+
+  9-19-17:
+ 1) Preparations for Mary Hall's visit.
+    a. Read proposal.
+    b. Brush up on CHiLL + I/E (Inspector/Executor).
+    c. Skim related work.
+    d. Inspector dynamically generated at compile time: static analysis.
+    e. Executor is updated dynamically by inspector.
+    f. Matrix multiplication.
+    g. Read status report, focus on products.
+    h. One paper on sparse matrix multiplication w/ Mary & Michelle.
+    i. One journal article as yet unpublished (Cathie to send).
+    j. Read TIDa paper (Unat), need to copy her benchmarks.
+    

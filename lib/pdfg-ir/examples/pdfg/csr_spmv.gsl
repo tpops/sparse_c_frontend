@@ -1,0 +1,9 @@
+# CSR-SpMV Graph Spec
+name('csr_spmv');
+A := {[j] : 0 <= j < NNZ};
+col := {[j] : 0 <= j < NNZ};
+index := {[i] : 0 <= i <= N_R};
+x := {[k] : 0 <= k < N_C};
+y := {[i] : 0 <= i < N_R};
+spmv := {[i,j]: 0 <= i < N_R && index(i) <= j < index(i+1) && j >= 0 && j < NNZ};
+statement(spmv):="y[i]+=A[j]*x[col[j]]";

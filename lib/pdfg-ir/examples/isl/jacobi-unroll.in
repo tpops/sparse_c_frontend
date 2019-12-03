@@ -1,0 +1,15 @@
+# Peel 1st
+I_1:=[T,N] -> {init[t,i,j]->[0,t,0,i,j]: t=1 && 1 <= i <= N && 1 <= j <= N && T > 1};
+# Unroll
+I_t:=[T,N] -> {even[t,i,j]->[1,t,0,i,j]: exists a: 2 <= t < T && t = 2a && 1 <= i <= N && 1 <= j <= N && T > 1;
+               odd[t,i,j]->[1,t,1,i,j]: exists a: 2 <= t < T && t = 2a + 1 && 1 <= i <= N && 1 <= j <= N && T > 1};
+# Peel last
+I_T:=[T,N] -> {end[t,i,j]->[2,t,0,i,j]: t=T && 1 <= i <= N && 1 <= j <= N && T > 1};
+# Join spaces
+I := I_1 + I_t + I_T;
+print("// A(t,i,j)=(A(t-1,i,j)+A(t-1,i,j-1)+A(t-1,i,j+1)+A(t-1,i+1,j)+A(t-1,i-1,j))*0.2");
+print("/*");
+print(I);
+print("*/");
+codegen(I);
+
