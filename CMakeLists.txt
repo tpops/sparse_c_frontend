@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
-project (pdfg-c C CXX)
-set (APP_NAME "pdfg-c")
+project (sparse-c C CXX)
+set (APP_NAME "sparse-c")
 #set(CMAKE_CXX_STANDARD 11)
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions -fPIC -DPIC -Xpreprocessor -ftree-vectorize -funroll-all-loops ")
 
@@ -233,7 +233,7 @@ if (TESTING)
     
     enable_testing()
     
-    add_executable(pdfg-cTest ${UNIT_TESTS} ${GTEST_FILES} ${PDFG-C_FILES})
+    add_executable(sparse-cTest ${UNIT_TESTS} ${GTEST_FILES} ${PDFG-C_FILES})
 endif()
 
 
